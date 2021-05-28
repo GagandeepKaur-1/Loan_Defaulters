@@ -1,27 +1,27 @@
 # Loan_Defaulters
 
-Artivatic Data Labs Pvt. Ltd.
+
 Problem Statement
-The Bank Indessa has not done well in the last 3 quarters. Their NPAs (Non Performing Assets)
-have reached all time high. It is starting to lose the confidence of its investors. As a result, it’s stock
-has fallen by 20% in the previous quarter alone.
-After careful analysis, it was found that the majority of NPA was contributed by loan defaulters. With
-the messy data collected over all the years, this bank has decided to use machine learning to figure
-out a way to find these defaulters and devise a plan to reduce them.
-This bank uses a pool of investors to sanction their loans. For example: If any customer has applied
-for a loan of $20000, along with the bank, the investors perform due diligence on the requested loan
-application. Keep this in mind while understanding data.
-In this challenge, you will help this bank by predicting the probability that a member will default.
+
+The bank of Indessa was facing an all time low. Their performance for the last three quarters was quiet bad.They had loads of Non-Performing Assets and were fearing disinverstment by investors. As a matter of fact, the stock was valued at a price which was 20% low in the past year.After a lot of analysis and research, it was found out that loan defaulters were a major reason. The bank decided to use machine learning as a resort to solve their problem. The bank has a list of investors to sanction loans.
+
+Lets take a case where a customer asks for loan from the bank.The investor analyses the loan application with full zeal and then decides whether to go ahead with providing loan or rejecting the application once and for all.
+
+Here, we need to analyse whether a customer asking for loan will default or not. 
+
 Dataset
 Download the dataset from the following link:
 https://drive.google.com/file/d/1jIUQO0POfYslbO9ru_Z3Cb5nPaEnGbv-/view?usp=sharing
+
 Evaluation Metric
 Submissions will be evaluated based on AUC-ROC score.
 Data Information
 There are files given: train, test and submission. Your submission file must adhere to the format
 specified in the given submission file. This data set comprises information captured in December
-2016. Following is the description of variables given:
+
+Following is the description of variables given:
 Variable Description
+
 member_id unique ID assigned to each member
 loan_amnt loan amount ($) applied by the member
 funded_amnt loan amount ($) sanctioned by the bank
@@ -83,7 +83,5 @@ tot_cur_bal total current balance of all accounts
 total_rev_hi_lim total revolving credit limit
 loan_status status of loan amount, 1 = Defaulter, 0 = Non
 Defaulters
-Submission Details:
-Upload the task in your github account and share the link with us.
-Task deadline:
-End of the 4th day from the day the task is received.
+
+Analyses has been done using four machine learning algorithms and comparing their roc_auc scores. the best one will be taken as the submission of the problem. 
