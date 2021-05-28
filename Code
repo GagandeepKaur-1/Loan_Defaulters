@@ -1,0 +1,259 @@
+# Artivatic
+import numpy as np
+import pandas as pd
+import os
+
+
+os.getcwd()
+
+os.chdir("C:\\Users\\gurme\\OneDrive\\Documents\\Documents\\Gagan\\DS\\DS\\Python\\Kaggle Comps\\Artivatic")
+
+train=pd.read_csv("train_indessa.csv")
+
+test=pd.read_csv("test_indessa.csv")
+
+train.shape
+
+total_rows=532428+354951
+total_rows
+
+test.shape
+
+train.columns
+
+test.columns
+
+train["Data"]="Train"
+test["loan_status"]=0
+test["Data"]="Test"
+
+file=pd.concat([train,test],axis=0)
+
+file.head()
+
+file.shape
+
+file.columns
+
+file.dtypes
+
+file.isnull().sum()
+
+file["term"]=np.where(file["term"]=="36 months",36,60)
+
+file["term"].value_counts()
+
+file["pymnt_plan"]=np.where(file["pymnt_plan"]=="y",1,0)
+
+file["pymnt_plan"].value_counts()
+
+# dropping columns because of large number of missing values."
+drop1=["mths_since_last_record","mths_since_last_delinq","mths_since_last_major_derog","verification_status_joint",
+       "tot_coll_amt","tot_cur_bal","total_rev_hi_lim","emp_length","last_week_pay"]
+
+drop=["batch_enrolled","sub_grade","emp_title","desc","title","zip_code","addr_state"]
+
+file.drop(file[drop1],axis=1,inplace=True)
+
+file.drop(file[drop],axis=1,inplace=True)
+
+# columns that need to be categorised
+cat_cols=["grade","home_ownership","verification_status","purpose",]
+
+mean=file["revol_util"].mean(skipna=True)
+
+mean
+
+blank_cols=np.where(file["revol_util"].isnull())
+for row in blank_cols:
+    file.iloc[row] = file.iloc[row].fillna(mean)
+
+file["revol_util"].isnull().sum()
+
+file["initial_list_status"]=np.where(file["initial_list_status"]=="f",1,2)
+
+file["initial_list_status"].value_counts()
+
+mean1=file["collections_12_mths_ex_med"].mean(skipna=True)
+
+mean1
+
+blank_cols_set2=np.where(file["collections_12_mths_ex_med"].isnull())
+for row in blank_cols_set2:
+    file.iloc[row] = file.iloc[row].fillna(mean1)
+
+file["collections_12_mths_ex_med"].isnull().sum()
+
+file["application_type"]=np.where(file["application_type"]=="INDIVIDUAL",1,2)
+
+file.columns
+
+file.shape
+
+for col in cat_cols:
+    cols_data=pd.get_dummies(file[col],prefix=None,prefix_sep="_",drop_first=False)
+    file2=pd.concat([file,cols_data],axis=1)
+    file2.drop(file[col],axis=1,inplace=True)
+
+file2.shape
+
+cols_data.head()
+
+for col in cat_cols:
+    freqs=file[col].value_counts()
+    cats=freqs.index[freqs>500][:-1]
+    for cat in cats:
+        name=col+"_"+str(cat)
+        file[name]=(file[col]==cat).astype(int)
+    del file[col]
+    print(col)
+
+file.shape
+
+file.columns
+
+file.columns
+
+file.shape
+
+train_data=file[file["Data"]=="Train"]
+del train_data["Data"]
+test_data=file[file["Data"]=="Test"]
+del test_data["Data"]
+
+
+train_data.shape
+
+test_data.shape
+
+test_data.drop(["loan_status"],1,inplace=True)
+
+test_data.shape
+
+from sklearn.model_selection import train_test_split
+
+train_1,test_1=train_test_split(train_data,test_size=0.20,random_state=2)
+
+train_1_y=train_1.loan_status
+train_1_x=train_1.drop(["loan_status"],1)
+test_1_y=test_1.loan_status
+test_1_x=test_1.drop(["loan_status"],1)
+
+
+test_1_y.shape
+
+from sklearn.ensemble import GradientBoostingClassifier
+gbclf=GradientBoostingClassifier()
+params={"n_estimators":[50,100,200,500],"learning_rate":[0.0001,0.001,0.01,0.05,0.1,0.4,0.8,1],
+        "max_depth":[1,2,3,4,5],"subsample":[0.5,0.8,1],"max_features":[0.1,0.3,0.5,0.8,1]}
+from sklearn.model_selection import RandomizedSearchCV
+random_search=RandomizedSearchCV(gbclf,scoring="roc_auc",param_distributions=params,
+                                                       cv=10,n_iter=10,n_jobs=-1,verbose=False)
+
+
+random_search.fit(train_1_x,train_1_y)
+
+predictions_gbm=random_search.predict(test_1_x)
+
+random_search.classes_
+
+from sklearn.metrics import roc_auc_score
+
+scores_gbm=roc_auc_score(test_1_y,predictions_gbm)
+
+final_predictions_gbm=grid_search.predict(test_data)
+
+submission_gbm=pd.DataFrame({"member_id":test_data.member_id,"loan_status":final_predictions_gbm})
+
+submission_gbm.shape
+
+submission_gbm.to_csv("Gagandeep_Artivatic_gbm.csv")
+
+from sklearn.linear_model import LogisticRegression
+lr=LogisticRegression()
+params={"class_weight":["balanced",None],"penalty":["l1","l2"]}
+from sklearn.model_selection import GridSearchCV
+
+
+grid_search=GridSearchCV(lr,param_grid=params,cv=10,scoring="roc_auc",n_jobs=-1)
+
+grid_search.fit(train_1_x,train_1_y)
+
+predictions=grid_search.predict(test_1_x)
+
+grid_search.classes_
+
+from sklearn.metrics import roc_auc_score
+
+score_lr=roc_auc_score(test_1_y,predictions)
+
+final_predictions_lr=grid_search.predict(test_data)
+
+submission_lr=pd.DataFrame({"member_id":test_data.member_id,"loan_status":final_predictions_lr})
+
+submission_lr.shape
+
+submission_lr.to_csv("Gagandeep_Artivatic_lr.csv")
+
+
+
+from sklearn.ensemble import RandomForestClassifier
+rnclf=RandomForestClassifier()
+param_dist={"n_estimators":[100,200,300,500,700,1000],"max_features":[5,10,20,25,30,35],"bootstrap":[True,False],
+            "class_weight":[None,"balanced"],"criterion":["entropy","gini"],"max_depth":[None,5,10,15,20,30,50,70],
+            "min_samples_leaf""":[1,2,5,10,15,20],"min_samples_split":[2,5,10,15,20]}
+
+
+random_search_rf=RandomizedSearchCV(rnclf,param_dist,n_iter=10,scoring="roc_auc",cv=5,n_jobs=-1,verbose=False)
+
+random_search_rf.best_estimator_
+
+rf=
+
+rf.fit(train_1_x,train_1_y)
+
+predictions_rf=rf.predict(test_1_x)
+
+score_rf=roc_auc_score(test_1_y,predictions)
+
+score_rf
+
+final_predictions_rf=rf.predict(test_data)
+
+submission_rf=pd.DataFrame({"member_id":test_data.member_id,"loan_status":final_predictions_rf})
+
+submission_rf.shape
+
+submission_rf.to_csv("Gagan_Artivatic_rf.csv")
+
+
+
+from sklearn.preprocessing import StandardScaler
+scaler=StandardScaler()
+scaler.fit(train_1_x)
+x_train=scaler.transform(train_1_x)
+x_test=scaler.transform(test_1_x)
+
+from sklearn.neighbors import KNeighborsClassifier
+knclf=KNeighborsClassifier(n_neighbors=5)
+knclf.fit(train_1_x,train_1_y)
+
+predictions_knn=knclf.predict(test_data)
+
+score_knn=roc_auc_score(test_1_y,predictions_knn)
+
+final_predictions_knn=knclf.predict(test_data)
+
+submission_knn=pd.DataFrame({"member_id":test_data.member_id,"loan_status":final_predictions_knn})
+
+submission_knn.to_csv("Gagan_Artivatic_knn.csv")
+
+
+print("Accuracy_Scores")
+print("Logistic_Regression - ",score_lr)
+print("Gradient Boosting Machine - ",scores_gbm)
+print("Random Forest - ",score_rf)
+print("KNeighbors Classifier - ",score_knn)
+
+
+
